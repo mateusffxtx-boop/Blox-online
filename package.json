@@ -1,7 +1,6 @@
 {
   "name": "blox-fruits-online",
   "version": "1.0.0",
-  "description": "Blox Fruits Web Multiplayer",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
