@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Blox Fruits Web Online</title>
-<!-- Script do Socket.io fornecido automaticamente pelo servidor -->
 <script src="/socket.io/socket.io.js"></script>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -20,9 +19,9 @@
   /* ---------- HUD superior esquerdo ---------- */
   #hud {
     position: fixed; top: 14px; left: 14px; z-index: 10;
-    background: rgba(6, 24, 38, 0.82);
+    background: rgba(6, 24, 38, 0.85);
     border: 2px solid #4CC9F0; border-radius: 8px;
-    padding: 12px 14px; min-width: 230px;
+    padding: 12px 14px; min-width: 240px;
     box-shadow: 0 4px 16px rgba(0,0,0,0.45);
     pointer-events: none;
   }
@@ -56,12 +55,12 @@
     width: 100%; height: 6px; background: #10293c;
     border-radius: 3px; margin-top: 4px; overflow: hidden;
   }
-  #cooldownBar .barinner { background: #FFB703; }
+  #cooldownBar .barinner { background: #FFB703; width: 0%; }
 
   /* ---------- Minimapa ---------- */
   #minimapWrap {
     position: fixed; top: 14px; right: 14px; z-index: 10;
-    background: rgba(6, 24, 38, 0.82);
+    background: rgba(6, 24, 38, 0.85);
     border: 2px solid #4CC9F0; border-radius: 8px;
     padding: 8px; pointer-events: none;
   }
@@ -74,7 +73,7 @@
   /* ---------- Overlay inicial ---------- */
   #helpOverlay {
     position: fixed; inset: 0; z-index: 20;
-    background: rgba(4, 14, 22, 0.88);
+    background: rgba(4, 14, 22, 0.92);
     display: flex; align-items: center; justify-content: center;
     flex-direction: column; text-align: center;
     padding: 16px;
@@ -119,7 +118,7 @@
   }
   @keyframes blink { to { visibility: hidden; } }
 
-  /* ---------- Avisos centrais ---------- */
+  /* ---------- Toasts e Avisos ---------- */
   #centerToast {
     position: fixed; left: 50%; top: 22%; transform: translateX(-50%);
     z-index: 15; pointer-events: none; text-align: center; width: 90%;
@@ -138,7 +137,6 @@
     100% { opacity: 0; transform: translateY(-14px); }
   }
 
-  /* ---------- Aviso de nível de ilha ---------- */
   #islandWarn {
     position: fixed; left: 50%; bottom: 68px; transform: translateX(-50%);
     z-index: 15; pointer-events: none;
@@ -152,7 +150,6 @@
   /* ---------- Controles Touch ---------- */
   #touchControls { position: fixed; inset: 0; z-index: 12; pointer-events: none; display: none; }
   #touchControls.active { display: block; }
-
   #joystickZone {
     position: absolute; left: 0; top: 0; bottom: 0; width: 55%;
     pointer-events: auto; touch-action: none;
@@ -171,7 +168,6 @@
     display: none; transform: translate(-50%, -50%);
     pointer-events: none; left: 50%; top: 50%;
   }
-
   .touchBtn {
     position: absolute; width: 72px; height: 72px; border-radius: 50%;
     border: 3px solid #FFB703; background: rgba(6, 24, 38, 0.7);
@@ -193,28 +189,6 @@
     position: absolute; bottom: -20px; font-size: 10px; font-weight: 700;
     color: #A0A5B1; white-space: nowrap; letter-spacing: 0.5px;
   }
-
-  @media (max-width: 600px) {
-    #hud { top: 8px; left: 8px; padding: 8px 10px; min-width: 170px; border-width: 1px; }
-    #hud .title { font-size: 12px; margin-bottom: 5px; }
-    .statline { font-size: 11px; margin: 2px 0; }
-    .barouter { height: 8px; margin: 2px 0 4px 0; }
-    #fruitBadge { font-size: 10px; padding: 4px 6px; margin-top: 4px; }
-    #abilityHint { font-size: 9px; }
-    #minimapWrap { top: 8px; right: 8px; padding: 5px; border-width: 1px; }
-    #minimapWrap .mmTitle { font-size: 9px; margin-bottom: 3px; }
-    #minimap { width: 96px; height: 96px; }
-    #helpOverlay h1 { font-size: 24px; letter-spacing: 2px; }
-    #helpOverlay h2 { font-size: 12px; margin-bottom: 14px; }
-    #helpPanel { padding: 14px 16px; }
-    #helpPanel .row { font-size: 12px; gap: 8px; }
-    .key { min-width: 56px; font-size: 10px; padding: 2px 6px; }
-    #pressAny { font-size: 13px; }
-    .toastMsg { font-size: 16px; }
-    #islandWarn { font-size: 11px; bottom: 130px; }
-    .touchBtn { width: 64px; height: 64px; font-size: 26px; }
-    #abilityBtn { font-size: 20px; right: 96px; bottom: 70px; }
-  }
 </style>
 </head>
 <body>
@@ -228,7 +202,7 @@
   <div class="statline"><span class="label">XP</span><span class="value" id="xpText">0/50</span></div>
   <div class="barouter" id="xpBar"><div class="barinner" style="width:0%"></div></div>
   <div class="statline"><span class="label">Beli</span><span class="value" id="beliText">0</span></div>
-  <div class="statline"><span class="label">Ilha</span><span class="value" id="islandText">—</span></div>
+  <div class="statline"><span class="label">Ilha</span><span class="value" id="islandText">Starter Island</span></div>
   <div id="fruitBadge">Fruta: Nenhuma</div>
   <div id="abilityHint">Sem habilidade ativa</div>
   <div id="cooldownBar"><div class="barinner" style="width:0%"></div></div>
@@ -237,6 +211,324 @@
 <div id="minimapWrap">
   <div class="mmTitle">MINIMAPA</div>
   <canvas id="minimap" width="160" height="160"></canvas>
+</div>
+
+<div id="touchControls">
+  <div id="joystickZone">
+    <div id="joystickBase"></div>
+    <div id="joystickKnob"></div>
+  </div>
+  <div class="touchBtn" id="attackBtn" aria-label="Ataque">⚔</div>
+  <div class="touchBtn" id="abilityBtn" aria-label="Habilidade">
+    <span id="abilityIcon">✦</span>
+    <span class="abilityLabel" id="abilityLabel">Fruta</span>
+  </div>
+</div>
+
+<div id="helpOverlay">
+  <h1>Blox Fruits Web</h1>
+  <h2>Aventura Pirata Online</h2>
+  <div id="helpPanel">
+    <div class="sectionTitle">⌨️ Teclado (Desktop)</div>
+    <div class="row"><span class="key">WASD / ←↑↓→</span><span class="desc">Navegar pelo oceano</span></div>
+    <div class="row"><span class="key">ESPAÇO</span><span class="desc">Ataque com espada</span></div>
+    <div class="row"><span class="key">F</span><span class="desc">Usar habilidade da fruta</span></div>
+    <div class="sectionTitle">📱 Toque (Mobile)</div>
+    <div class="row"><span class="key">🕹️ Lado esq.</span><span class="desc">Joystick virtual</span></div>
+    <div class="row"><span class="key">⚔️ Botão</span><span class="desc">Ataque com espada</span></div>
+    <div class="row"><span class="key">✦ Botão</span><span class="desc">Habilidade da fruta</span></div>
+  </div>
+  <div id="pressAny">Pressione qualquer tecla ou toque para começar...</div>
+</div>
+
+<div id="centerToast"></div>
+<div id="islandWarn"></div>
+
+<script>
+(function () {
+  "use strict";
+
+  var socket = io();
+  var otherPlayers = {};
+
+  socket.on('currentPlayers', function (serverPlayers) {
+    Object.keys(serverPlayers).forEach(function (id) {
+      if (id !== socket.id) {
+        if (!otherPlayers[id]) {
+          otherPlayers[id] = serverPlayers[id];
+        } else {
+          otherPlayers[id].x = serverPlayers[id].x;
+          otherPlayers[id].y = serverPlayers[id].y;
+          otherPlayers[id].angle = serverPlayers[id].angle;
+          otherPlayers[id].hp = serverPlayers[id].hp;
+          otherPlayers[id].level = serverPlayers[id].level;
+          otherPlayers[id].fruit = serverPlayers[id].fruit;
+        }
+      }
+    });
+  });
+
+  socket.on('removePlayer', function (id) {
+    delete otherPlayers[id];
+  });
+
+  var WORLD_W = 4200, WORLD_H = 3400;
+  var COLORS = {
+    bg: "#061826", sea1: "#0b3a5c", sea2: "#0e4a72", sea3: "#125a86",
+    accent: "#FFB703", primary: "#4CC9F0", danger: "#EF4444", success: "#22C55E",
+    muted: "#A0A5B1"
+  };
+
+  var FRUITS = {
+    Flame:    { color: "#ff5722", dark: "#bf360c", icon: "🔥", hint: "F: lança bola de fogo", cd: 1.6 },
+    Ice:      { color: "#81d4fa", dark: "#0277bd", icon: "❄️", hint: "F: congela inimigos próximos", cd: 4.0 },
+    Lightning:{ color: "#ffee58", dark: "#f9a825", icon: "⚡", hint: "F: ataque em cadeia", cd: 3.0 },
+    Dark:     { color: "#7e57c2", dark: "#4527a0", icon: "🌑", hint: "F: atrai inimigos", cd: 3.5 }
+  };
+
+  var islands = [
+    { name: "Starter Island", x: 2100, y: 1700, r: 220, color: "#8BC34A", dark: "#558B2F", minLvl: 1 },
+    { name: "Jungle Island",  x: 1100, y: 900,  r: 200, color: "#2E7D32", dark: "#1B5E20", minLvl: 5 },
+    { name: "Desert Island",  x: 3300, y: 800,  r: 190, color: "#FFD54F", dark: "#F9A825", minLvl: 12 },
+    { name: "Volcano Island", x: 3200, y: 2700, r: 210, color: "#616161", dark: "#212121", minLvl: 20 }
+  ];
+
+  var canvas = document.getElementById("gameCanvas");
+  var ctx = canvas.getContext("2d");
+  var mmCanvas = document.getElementById("minimap");
+  var mmCtx = mmCanvas.getContext("2d");
+
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  window.addEventListener("resize", resize);
+  resize();
+
+  var IS_TOUCH = ("ontouchstart" in window) || (navigator.maxTouchPoints > 0);
+
+  var player = {
+    x: islands[0].x, y: islands[0].y + 120, vx: 0, vy: 0,
+    angle: -Math.PI / 2, speed: 190,
+    hp: 100, maxHp: 100,
+    level: 1, xp: 0, xpNext: 50, beli: 0,
+    baseDamage: 12,
+    fruit: null, fruitCd: 0,
+    attackCd: 0, attackAnim: 0,
+    hitFlash: 0, dead: false, respawnTimer: 0,
+    bob: 0
+  };
+
+  var enemies = [];
+  var fruits = [];
+  var projectiles = [];
+  var particles = [];
+  var damageTexts = [];
+  var enemyId = 0;
+
+  var keys = {};
+  var started = false;
+  var gameTime = 0;
+  var lastTime = performance.now();
+  var currentIslandName = "Starter Island";
+  var warnTimer = 0;
+
+  var ENEMY_TYPES = [
+    { name: "Bandido", hp: 40, dmg: 8, speed: 80, xp: 22, beli: 15, color: "#8d6e63", dark: "#4e342e", radius: 13 },
+    { name: "Pirata",  hp: 70, dmg: 13, speed: 95, xp: 40, beli: 30, color: "#455a64", dark: "#263238", radius: 15 },
+    { name: "Bruto",   hp: 120, dmg: 18, speed: 70, xp: 75, beli: 55, color: "#c62828", dark: "#7f1616", radius: 18 }
+  ];
+
+  function spawnEnemyForIsland(island) {
+    var tier = island.minLvl <= 1 ? 0 : island.minLvl <= 5 ? 1 : 2;
+    var t = ENEMY_TYPES[Math.min(tier, 2)];
+    var a = Math.random() * Math.PI * 2;
+    var d = island.r + 30 + Math.random() * 90;
+    enemies.push({
+      id: ++enemyId, type: t,
+      x: island.x + Math.cos(a) * d, y: island.y + Math.sin(a) * d,
+      hp: t.hp, maxHp: t.hp, island: island,
+      chase: false, frozen: 0, hitFlash: 0,
+      wanderA: Math.random() * Math.PI * 2, wanderT: 0
+    });
+  }
+
+  function populateWorld() {
+    islands.forEach(function (isl) {
+      var count = isl.minLvl <= 1 ? 4 : 5;
+      for (var i = 0; i < count; i++) spawnEnemyForIsland(isl);
+    });
+    for (var i = 0; i < 5; i++) spawnFruit();
+  }
+
+  function spawnFruit() {
+    var names = Object.keys(FRUITS);
+    var kind = names[Math.floor(Math.random() * names.length)];
+    var x, y, onIsland, tries = 0;
+    do {
+      x = 150 + Math.random() * (WORLD_W - 300);
+      y = 150 + Math.random() * (WORLD_H - 300);
+      onIsland = islands.some(function (isl) {
+        var dx = x - isl.x, dy = y - isl.y;
+        return dx * dx + dy * dy < (isl.r + 60) * (isl.r + 60);
+      });
+      tries++;
+    } while (onIsland && tries < 30);
+    fruits.push({ x: x, y: y, kind: kind, bob: Math.random() * Math.PI * 2 });
+  }
+
+  populateWorld();
+
+  var touchControls = document.getElementById("touchControls");
+  var joystickZone = document.getElementById("joystickZone");
+  var joystickBase = document.getElementById("joystickBase");
+  var joystickKnob = document.getElementById("joystickKnob");
+  var attackBtn = document.getElementById("attackBtn");
+  var abilityBtn = document.getElementById("abilityBtn");
+  var abilityIcon = document.getElementById("abilityIcon");
+  var abilityLabel = document.getElementById("abilityLabel");
+
+  if (IS_TOUCH) touchControls.classList.add("active");
+
+  var joystick = { active: false, id: null, originX: 0, originY: 0, dx: 0, dy: 0, maxRadius: 50 };
+
+  function showJoystick(x, y) {
+    joystickBase.style.display = "block";
+    joystickKnob.style.display = "block";
+    joystickBase.style.left = x + "px";
+    joystickBase.style.top = y + "px";
+    joystickKnob.style.left = x + "px";
+    joystickKnob.style.top = y + "px";
+  }
+
+  function hideJoystick() {
+    joystickBase.style.display = "none";
+    joystickKnob.style.display = "none";
+  }
+
+  joystickZone.addEventListener("touchstart", function (e) {
+    e.preventDefault();
+    if (!started) { dismissHelp(); return; }
+    if (joystick.active) return;
+    var t = e.changedTouches[0];
+    joystick.active = true;
+    joystick.id = t.identifier;
+    joystick.originX = t.clientX;
+    joystick.originY = t.clientY;
+    joystick.dx = 0; joystick.dy = 0;
+    showJoystick(t.clientX, t.clientY);
+  }, { passive: false });
+
+  joystickZone.addEventListener("touchmove", function (e) {
+    e.preventDefault();
+    for (var i = 0; i < e.changedTouches.length; i++) {
+      var t = e.changedTouches[i];
+      if (t.identifier === joystick.id) {
+        var dx = t.clientX - joystick.originX;
+        var dy = t.clientY - joystick.originY;
+        var d = Math.hypot(dx, dy);
+        if (d > joystick.maxRadius) {
+          dx = dx / d * joystick.maxRadius;
+          dy = dy / d * joystick.maxRadius;
+        }
+        joystick.dx = dx / joystick.maxRadius;
+        joystick.dy = dy / joystick.maxRadius;
+        joystickKnob.style.left = (joystick.originX + dx) + "px";
+        joystickKnob.style.top = (joystick.originY + dy) + "px";
+      }
+    }
+  }, { passive: false });
+
+  function joystickEnd(e) {
+    e.preventDefault();
+    for (var i = 0; i < e.changedTouches.length; i++) {
+      var t = e.changedTouches[i];
+      if (t.identifier === joystick.id) {
+        joystick.active = false;
+        joystick.id = null;
+        joystick.dx = 0; joystick.dy = 0;
+        hideJoystick();
+      }
+    }
+  }
+  joystickZone.addEventListener("touchend", joystickEnd, { passive: false });
+  joystickZone.addEventListener("touchcancel", joystickEnd, { passive: false });
+
+  attackBtn.addEventListener("touchstart", function (e) {
+    e.preventDefault();
+    if (!started) { dismissHelp(); return; }
+    tryMelee();
+  }, { passive: false });
+
+  abilityBtn.addEventListener("touchstart", function (e) {
+    e.preventDefault();
+    if (!started) { dismissHelp(); return; }
+    tryAbility();
+  }, { passive: false });
+
+  window.addEventListener("keydown", function (e) {
+    if (!started) { dismissHelp(); return; }
+    keys[e.code] = true;
+    if (e.code === "Space") { e.preventDefault(); tryMelee(); }
+    if (e.code === "KeyF") { e.preventDefault(); tryAbility(); }
+  });
+  window.addEventListener("keyup", function (e) { keys[e.code] = false; });
+
+  function dismissHelp() {
+    if (started) return;
+    started = true;
+    document.getElementById("helpOverlay").style.display = "none";
+  }
+
+  document.getElementById("helpOverlay").addEventListener("touchstart", function (e) {
+    e.preventDefault();
+    dismissHelp();
+  }, { passive: false });
+
+  function toast(msg, cls) {
+    var el = document.createElement("div");
+    el.className = "toastMsg" + (cls ? " " + cls : "");
+    el.textContent = msg;
+    var box = document.getElementById("centerToast");
+    box.innerHTML = "";
+    box.appendChild(el);
+    setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 2500);
+  }
+
+  function showIslandWarn(msg) {
+    var el = document.getElementById("islandWarn");
+    el.textContent = msg;
+    el.classList.add("show");
+    warnTimer = 1.5;
+  }
+
+  function addParticles(x, y, color, n, spread, life) {
+    for (var i = 0; i < n; i++) {
+      var a = Math.random() * Math.PI * 2;
+      var s = (Math.random() * 0.6 + 0.4) * (spread || 120);
+      particles.push({
+        x: x, y: y, vx: Math.cos(a) * s, vy: Math.sin(a) * s,
+        life: life || 0.5, maxLife: life || 0.5,
+        color: color, size: 2 + Math.random() * 3
+      });
+    }
+  }
+
+  function addDamageText(x, y, txt, color) {
+    damageTexts.push({ x: x, y: y, txt: txt, color: color || "#fff", life: 0.8 });
+  }
+
+  function tryMelee() {
+    if (player.dead || player.attackCd > 0) return;
+    player.attackCd = 0.45;
+    player.attackAnim = 0.22;
+    var reach = 62;
+    var dmg = player.baseDamage + player.level * 3;
+    for (var i = enemies.length - 1; i >= 0; i--) {
+      var en = enemies[i];
+      var dx = en.x - player.x, dy = en.y - player.y;
+      var dist = Math.hypot(dx, dy);
+      if (dist < width="160" height="160"></canvas>
 </div>
 
 <div id="touchControls">
